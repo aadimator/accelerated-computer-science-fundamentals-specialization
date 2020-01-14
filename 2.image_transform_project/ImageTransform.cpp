@@ -11,8 +11,8 @@
 
 Write your name and email address in the comment space here:
 
-Name:
-Email:
+Name: Aadam
+Email: aadimator@gmail.com
 
 (...end multi-line comment.)
 ******************** */
@@ -68,6 +68,21 @@ PNG grayscale(PNG image) {
  */
 PNG createSpotlight(PNG image, int centerX, int centerY) {
 
+  for (unsigned x = 0; x < image.width(); x++) {
+    for (unsigned y = 0; y < image.height(); y++) {
+      HSLAPixel & pixel = image.getPixel(x, y);
+
+      int distance = sqrt(pow(x - centerX, 2) + pow(y - centerY, 2));
+      
+      if (distance <= 160) {
+        pixel.l -= pixel.l * (distance * 0.5 / 100);
+      } else {
+        pixel.l *= 0.2;
+      }
+      
+    }
+  }
+
   return image;
   
 }
@@ -84,6 +99,21 @@ PNG createSpotlight(PNG image, int centerX, int centerY) {
  * @return The illinify'd image.
 **/
 PNG illinify(PNG image) {
+  int orangeValue = 11;
+  int blueValue = 216;
+
+  for (unsigned x = 0; x < image.width(); x++) {
+    for (unsigned y = 0; y < image.height(); y++) {
+      HSLAPixel & pixel = image.getPixel(x, y);
+
+      int max = 360;
+      int orangeDistance = abs(pixel.h - orangeValue);
+      orangeDistance = orangeDistance < max/2 ? orangeDistance : max - orangeDistance;
+      int blueDistance = abs(pixel.h - blueValue);
+      blueDistance = blueDistance < max/2 ? blueDistance : max - blueDistance;
+      pixel.h = (orangeDistance < blueDistance) ? orangeValue : blueValue;
+    }
+  }
 
   return image;
 }
@@ -102,6 +132,25 @@ PNG illinify(PNG image) {
 * @return The watermarked image.
 */
 PNG watermark(PNG firstImage, PNG secondImage) {
+
+  unsigned secondImageWidth = secondImage.width();
+  unsigned secondImageHeight = secondImage.height();
+
+  for (unsigned x = 0; x < firstImage.width(); x++) {
+    for (unsigned y = 0; y < firstImage.height(); y++) {
+      HSLAPixel & pixel = firstImage.getPixel(x, y);
+
+      if (x < secondImageWidth && y < secondImageHeight) {
+        HSLAPixel & secondPixel = secondImage.getPixel(x, y);
+        if (secondPixel.l == 1)
+        {
+          pixel.l = pixel.l < 0.8 ? pixel.l + 0.2 : 1.0;
+        }
+        
+      }
+      
+    }
+  }
 
   return firstImage;
 }
