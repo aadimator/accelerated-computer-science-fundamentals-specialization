@@ -79,7 +79,8 @@
  ********************************************************************/
 
 template <typename T>
-void LinkedList<T>::insertOrdered(const T& newData) {
+void LinkedList<T>::insertOrdered(const T &newData)
+{
 
   // -----------------------------------------------------------
   // TODO: Your code here!
@@ -92,7 +93,7 @@ void LinkedList<T>::insertOrdered(const T& newData) {
   // go in the list. A good way to do this is by considering special
   // base cases first, then walk the list from front to back and find
   // the earliest position where you should insert the new node.
-  
+
   // When you insert the node, make sure to update any and all pointers
   // between it and adjacent nodes accordingly (next and prev pointers).
   // You may also need to update the head_ and tail_ pointers in some
@@ -102,13 +103,13 @@ void LinkedList<T>::insertOrdered(const T& newData) {
   // other provided code for this project!
 
   // More hints:
-  
+
   // First, practice your technique for traversing the list from front
   // to back. You can see examples of several ways to do this throughout
   // the provided code for this project. We recommend that you try using
   // a temporary pointer that you update to track your position as you
   // traverse from node to node.
-  
+
   // Consider all the cases that can happen when you're trying to insert
   // the new node. Is the list currently empty? Does the new node go
   // at the beginning? Does it go somewhere in the middle? Does it go
@@ -127,7 +128,46 @@ void LinkedList<T>::insertOrdered(const T& newData) {
   // they don't handle the null pointer at the tail properly. Be careful
   // to update all next, prev, head_, and tail_ pointers as needed on your
   // new node or on those existing nodes that are adjacent to the new node.
+  Node *newNode = new Node(newData);
+  if (!head_)
+  {
+    // If empty, insert as the only item as both head and tail.
+    // The Node already has next and prev set to nullptr by default.
+    head_ = newNode;
+    tail_ = newNode;
+  }
+  // If new item is smaller than current head data, then add the new item as the head.
+  else if (newData < head_->data)
+  {
+    Node *oldHead = head_;
+    oldHead->prev = newNode;
+    newNode->next = oldHead;
+    head_ = newNode;
+  }
+  else if (newData > tail_->data)
+  {
+    Node *oldTail = tail_;
+    oldTail->next = newNode;
+    newNode->prev = oldTail;
+    tail_ = newNode;
+  }
+  else
+  {
+    Node *cur = head_->next;
+    while (cur && newData > cur->data)
+    {
+      cur = cur->next;
+    }
+    Node *oldNode = cur;
+    newNode->next = oldNode;
+    newNode->prev = oldNode->prev;
+    oldNode->prev->next = newNode;
+    oldNode->prev = newNode;
+    cur = newNode;
+  }
 
+  // update size
+  size_++;
 }
 
 /********************************************************************
@@ -203,7 +243,8 @@ void LinkedList<T>::insertOrdered(const T& newData) {
  ********************************************************************/
 
 template <typename T>
-LinkedList<T> LinkedList<T>::merge(const LinkedList<T>& other) const {
+LinkedList<T> LinkedList<T>::merge(const LinkedList<T> &other) const
+{
 
   // You can't edit the original instance of LinkedList that is calling
   // merge because the function is marked const, and the "other" input
@@ -217,7 +258,7 @@ LinkedList<T> LinkedList<T>::merge(const LinkedList<T>& other) const {
   // So if this function was called as "A.merge(B)", then now, "left"
   // is a temporary copy of the "A" and "right" is a temporary copy
   // of the "B".
-  
+
   // We will also create an empty list called "merged" where we can build
   // the final result we want. This is what we will return at the end of
   // the function.
@@ -253,6 +294,27 @@ LinkedList<T> LinkedList<T>::merge(const LinkedList<T>& other) const {
   // notice that all of our nodes are created on the heap? The part of the
   // list that we pass back is really small; it just contains two pointers
   // and an int.)
+  while (!left.empty() && !right.empty())
+  {
+    if (left.front() < right.front())
+    {
+      merged.pushBack(left.front());
+      left.popFront();
+    }
+    else
+    {
+      merged.pushBack(right.front());
+      right.popFront();
+    }
+  }
+
+  LinkedList<T> nonEmpty = (!left.empty()) ? left : right;
+
+  while (!nonEmpty.empty())
+  {
+    merged.pushBack(nonEmpty.front());
+    nonEmpty.popFront();
+  }
+
   return merged;
 }
-
