@@ -85,7 +85,8 @@
 // above. If the tree passed in already has some contents then they should be
 // properly destroyed first. There is no need to return a value because the
 // tree is edited in-place by reference.
-static void treeFactory(GenericTree<int>& tree) {
+static void treeFactory(GenericTree<int> &tree)
+{
 
   //      *****************************************************
   //                           EXERCISE 1
@@ -97,17 +98,25 @@ static void treeFactory(GenericTree<int>& tree) {
   // when you print it out. The main() function runs that test for you.
 
   // ...
-
+  tree.clear();
+  tree.createRoot(4);
+  auto left = tree.getRootPtr()->addChild(8);
+  auto right = tree.getRootPtr()->addChild(15);
+  auto leftLeft = left->addChild(16);
+  auto leftRight = left->addChild(23);
+  leftLeft->addChild(42);
 }
 
 // treeFactoryTest: This function demonstrates the execution of treeFactory
 // and displays a preview of the results in the main function.
 // (You do NOT need to edit this function.)
-static void treeFactoryTest() {
+static void treeFactoryTest()
+{
   std::cout << std::endl;
   std::cout << "------------------------------" << std::endl;
   std::cout << "EXERCISE 1: treeFactoryTest" << std::endl;
-  std::cout << "The output should match what you see in the code comments" << std::endl << std::endl;
+  std::cout << "The output should match what you see in the code comments" << std::endl
+            << std::endl;
 
   GenericTree<int> tree(9999);
   treeFactory(tree);
@@ -205,10 +214,12 @@ static void treeFactoryTest() {
 // TreeNode inner type belonging to some type of GenericTree.
 // (You do NOT need to edit this function.)
 template <typename N>
-int countNullChildrenRecursive(N* subtreeRoot) {
+int countNullChildrenRecursive(N *subtreeRoot)
+{
 
   // Base case: If the root of this subtree itself is null, then return 1.
-  if (!subtreeRoot) return 1;
+  if (!subtreeRoot)
+    return 1;
 
   int nullChildrenSum = 0;
 
@@ -219,13 +230,13 @@ int countNullChildrenRecursive(N* subtreeRoot) {
   // Note 3: Instead of "auto", it also works to write "auto*" or "N*" here
   //  based on how we've set up the template. But you can't use "auto" in the
   //  function arguments list, only inside the function.
-  
+
   // Iterate over the list of children and recurse on each subtree.
-  for (auto childPtr : subtreeRoot->childrenPtrs) {
+  for (auto childPtr : subtreeRoot->childrenPtrs)
+  {
 
     // Increment the sum by the result of recursing on this child's subtree.
     nullChildrenSum += countNullChildrenRecursive(childPtr);
-
   }
 
   // Return the sum.
@@ -238,24 +249,27 @@ int countNullChildrenRecursive(N* subtreeRoot) {
 // TreeNode inner type belonging to some type of GenericTree.
 // (You do NOT need to edit this function.)
 template <typename N>
-int countNullChildrenIterative(N* subtreeRoot) {
+int countNullChildrenIterative(N *subtreeRoot)
+{
 
   int nullChildrenSum = 0;
 
   // Stack of node pointers that we still need to explore (constructed empty)
-  std::stack<N*> nodesToExplore;
+  std::stack<N *> nodesToExplore;
 
   // Begin by pushing our subtree root pointer onto the stack
   nodesToExplore.push(subtreeRoot);
 
   // Loop while there are still nodes to explore
-  while (!nodesToExplore.empty()) {
+  while (!nodesToExplore.empty())
+  {
 
     // Make a copy of the top pointer on the stack, then pop it to decrease the stack
-    N* topNode = nodesToExplore.top();
+    N *topNode = nodesToExplore.top();
     nodesToExplore.pop();
 
-    if (!topNode) {
+    if (!topNode)
+    {
       // If the top node pointer is null, then we must not dereference it.
       // Just increment the null counter, then "continue" to jump back to the top of the loop.
       nullChildrenSum++;
@@ -265,10 +279,10 @@ int countNullChildrenIterative(N* subtreeRoot) {
     // If the node exists, it may have children pointers. Let's iterate
     // through the childrenPtrs vector and push copies of those pointers
     // onto the exploration stack.
-    for (auto childPtr : topNode->childrenPtrs) {
+    for (auto childPtr : topNode->childrenPtrs)
+    {
       nodesToExplore.push(childPtr);
     }
-
   }
 
   // Return the sum.
@@ -299,7 +313,8 @@ int countNullChildrenIterative(N* subtreeRoot) {
 // and records copies of the data found, in order, in a std::vector,
 // which should then be returned.
 template <typename T>
-std::vector<T> traverseLevels(GenericTree<T>& tree) {
+std::vector<T> traverseLevels(GenericTree<T> &tree)
+{
 
   // This defines a type alias for the appropriate TreeNode dependent type.
   // This might be convenient.
@@ -312,7 +327,8 @@ std::vector<T> traverseLevels(GenericTree<T>& tree) {
   std::vector<T> results;
 
   auto rootNodePtr = tree.getRootPtr();
-  if (!rootNodePtr) return results;
+  if (!rootNodePtr)
+    return results;
 
   //      *****************************************************
   //                           EXERCISE 2
@@ -326,21 +342,53 @@ std::vector<T> traverseLevels(GenericTree<T>& tree) {
 
   // ...
 
+  results.push_back(rootNodePtr->data);
+
+  std::vector<TreeNode *> childPtrs;
+  std::vector<TreeNode *> next_level_childPtrs;
+
+  // Initialize childPtrs
+  childPtrs = rootNodePtr->childrenPtrs;
+
+  // child ptr of current node
+  while (childPtrs.size() != 0)
+  {
+    // clear  next_level_childPtrs on each level beginning
+    next_level_childPtrs.clear();
+
+    for (size_t i = 0; i < childPtrs.size(); i++)
+    {
+      // Get child's data, and push into results
+      T data = childPtrs[i]->data;
+      results.push_back(data);
+
+      // Collect next level's children, and push into next_level_childPtrs
+      for (size_t j = 0; j < childPtrs[i]->childrenPtrs.size(); j++)
+      {
+        next_level_childPtrs.push_back(childPtrs[i]->childrenPtrs[j]);
+      }
+    }
+    childPtrs.clear();
+    // Initialize childPtrs
+    childPtrs = next_level_childPtrs;
+  }
   return results;
 }
 
 // traversalTest: Runs some tests with your traverseLevels function and
 // displays comparison output. (You do NOT need to edit this function.)
-static void traversalTest() {
+static void traversalTest()
+{
   std::cout << std::endl;
   std::cout << "------------------------------" << std::endl;
   std::cout << "EXERCISE 2: traversalTest" << std::endl;
-  std::cout << "Testing your traverseLevels function" << std::endl  << std::endl;
+  std::cout << "Testing your traverseLevels function" << std::endl
+            << std::endl;
 
   {
     // This is the tree from exampleTree1() in main.cpp
     std::cout << "[Test 1] Expected output:" << std::endl
-      << "A B E C D F G" << std::endl;
+              << "A B E C D F G" << std::endl;
     GenericTree<std::string> tree1("A");
     auto nodeA = tree1.getRootPtr();
     auto nodeB = nodeA->addChild("B");
@@ -351,16 +399,18 @@ static void traversalTest() {
     nodeE->addChild("G");
     std::vector<std::string> tree1_results = traverseLevels(tree1);
     std::cout << "Your traverseLevels output:" << std::endl;
-    for (auto result : tree1_results) {
+    for (auto result : tree1_results)
+    {
       std::cout << result << " ";
     }
-    std::cout << std::endl << std::endl;
+    std::cout << std::endl
+              << std::endl;
   }
-  
+
   {
     // This is the tree from exampleTree2() in main.cpp
     std::cout << "[Test 2] Expected output:" << std::endl
-      << "A B D J K C E I L F G M H" << std::endl;
+              << "A B D J K C E I L F G M H" << std::endl;
     GenericTree<std::string> tree2("A");
     auto A = tree2.getRootPtr();
     A->addChild("B")->addChild("C");
@@ -374,26 +424,28 @@ static void traversalTest() {
     L->addChild("M");
     std::vector<std::string> tree2_results = traverseLevels(tree2);
     std::cout << "Your traverseLevels output:" << std::endl;
-    for (auto result : tree2_results) {
+    for (auto result : tree2_results)
+    {
       std::cout << result << " ";
     }
-    std::cout << std::endl << std::endl;
+    std::cout << std::endl
+              << std::endl;
   }
 
   {
     // This is the tree you should have built for the first part of this
     // assignment above, with treeFactory.
     std::cout << "[Test 3] Expected output:" << std::endl
-      << "4 8 15 16 23 42" << std::endl;
+              << "4 8 15 16 23 42" << std::endl;
     GenericTree<int> tree3(9999);
     treeFactory(tree3);
     std::vector<int> tree3_results = traverseLevels(tree3);
     std::cout << "Your traverseLevels output:" << std::endl;
-    for (auto result : tree3_results) {
+    for (auto result : tree3_results)
+    {
       std::cout << result << " ";
     }
-    std::cout << std::endl << std::endl;
+    std::cout << std::endl
+              << std::endl;
   }
-
 }
-
